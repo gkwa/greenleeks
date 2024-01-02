@@ -20,10 +20,12 @@ const (
 	gitConfigUserSection = "user"
 )
 
-var AuthorInfo struct {
+type AuthorInfo struct {
 	Name  string
 	Email string
 }
+
+var authorInfo AuthorInfo
 
 var opts struct {
 	LogFormat string `long:"log-format" choice:"text" choice:"json" default:"text" description:"Log format"`
@@ -63,8 +65,13 @@ func parseFlags() error {
 }
 
 func run() error {
-	configureGitUserInfo()
-	
+	var err error
+
+	authorInfo, err = configureGitUserInfo()
+	if err != nil {
+		return fmt.Errorf("failed to configure git user info: %v", err)
+	}
+
 	isUnderGit, err := isUnderGitControl(opts.RootDir)
 	if err != nil {
 		return fmt.Errorf("failed to check if directory is under git control: %v", err)
@@ -156,8 +163,8 @@ func commit(rootDir, message string) error {
 	}
 
 	author := &object.Signature{
-		Name:  AuthorInfo.Name,
-		Email: AuthorInfo.Email,
+		Name:  authorInfo.Name,
+		Email: authorInfo.Email,
 		When:  time.Now(),
 	}
 
@@ -188,29 +195,34 @@ func countFiles(rootDir string) (int, error) {
 	return fileCount, err
 }
 
-func configureGitUserInfo() {
+func configureGitUserInfo() (AuthorInfo, error) {
 	gitConfigPath, err := mymazda.ExpandTilde(opts.GitConfig)
 	if err != nil {
 		panic(err)
 	}
 
+	ai := AuthorInfo{
+		Name:  "Your Name",
+		Email: "your.email@example.com",
+	}
+
 	config, err := readGitConfig(gitConfigPath)
 	if err != nil {
-		AuthorInfo.Name = "Your Name"
-		AuthorInfo.Email = "your.email@example.com"
-		return
+		return AuthorInfo{}, err
 	}
 
-	AuthorInfo.Name = config.Section(gitConfigUserSection).Key("name").String()
-	AuthorInfo.Email = config.Section(gitConfigUserSection).Key("email").String()
+	name := config.Section(gitConfigUserSection).Key("name").String()
+	email := config.Section(gitConfigUserSection).Key("email").String()
 
-	if AuthorInfo.Name == "" {
-		AuthorInfo.Name = "Your Name"
+	if name != "" {
+		ai.Name = name
 	}
 
-	if AuthorInfo.Email == "" {
-		AuthorInfo.Email = "your.email@example.com"
+	if email != "" {
+		ai.Email = email
 	}
+
+	return ai, nil
 }
 
 func readGitConfig(gitConfigPath string) (*ini.File, error) {
