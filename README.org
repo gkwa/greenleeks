@@ -1,0 +1,19 @@
+* greenleeks
+
+** purpose
+
+Automate this step:
+
+#+begin_example
+git init
+git add -A 
+git commit -am Boilerplate
+#+end_example
+
+** usage
+
+Example:
+#+begin_example
+make install
+greenleeks
+#+end_example
