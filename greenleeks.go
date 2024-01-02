@@ -33,6 +33,7 @@ var opts struct {
 	RootDir   string `short:"r" long:"root" description:"Root directory" default:"."`
 	MaxFiles  int    `long:"max-files" description:"Maximum number of files allowed" default:"100"`
 	GitConfig string `long:"gitconfig" description:"Path to the Git configuration file" default:"~/.gitconfig"`
+	CommitMsg string `short:"m" long:"commit-message" description:"Commit message" default:"Boilerplate"`
 	logLevel  slog.Level
 }
 
@@ -103,7 +104,7 @@ func run() error {
 		return fmt.Errorf("failed to add all files: %v", err)
 	}
 
-	err = commit(opts.RootDir, "Boilerplate")
+	err = commit(opts.RootDir, opts.CommitMsg)
 	if err != nil {
 		return fmt.Errorf("failed to commit: %v", err)
 	}
