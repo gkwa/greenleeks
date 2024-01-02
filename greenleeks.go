@@ -115,7 +115,7 @@ func run() error {
 }
 
 func isUnderGitControl(rootDir string) (bool, error) {
-	_, err := git.PlainOpenWithOptions(rootDir, &git.PlainOpenOptions{DetectDotGit: true})
+	_, err := git.PlainOpen(rootDir)
 	if err == nil {
 		return true, nil
 	} else if err == git.ErrRepositoryNotExists || err == git.ErrWorktreeNotProvided {
