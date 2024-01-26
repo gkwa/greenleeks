@@ -68,12 +68,12 @@ func parseFlags() error {
 func run() error {
 	var err error
 
-	authorInfo, err = configureGitUserInfo()
+	authorInfo, err = ConfigureGitUserInfo()
 	if err != nil {
 		return fmt.Errorf("failed to configure git user info: %v", err)
 	}
 
-	isUnderGit, err := isUnderGitControl(opts.RootDir)
+	isUnderGit, err := IsUnderGitControl(opts.RootDir)
 	if err != nil {
 		return fmt.Errorf("failed to check if directory is under git control: %v", err)
 	}
@@ -85,7 +85,7 @@ func run() error {
 
 	slog.Info("Initializing git repository...")
 
-	err = initializeGitRepository(opts.RootDir)
+	err = InitializeGitRepository(opts.RootDir)
 	if err != nil {
 		return fmt.Errorf("failed to initialize git repository: %v", err)
 	}
@@ -99,7 +99,7 @@ func run() error {
 		return fmt.Errorf(maxFilesErrorMessage, fileCount, opts.MaxFiles)
 	}
 
-	err = addAllFiles(opts.RootDir)
+	err = AddAllFiles(opts.RootDir)
 	if err != nil {
 		return fmt.Errorf("failed to add all files: %v", err)
 	}
@@ -114,7 +114,7 @@ func run() error {
 	return nil
 }
 
-func isUnderGitControl(rootDir string) (bool, error) {
+func IsUnderGitControl(rootDir string) (bool, error) {
 	_, err := git.PlainOpen(rootDir)
 	if err == nil {
 		return true, nil
@@ -125,7 +125,7 @@ func isUnderGitControl(rootDir string) (bool, error) {
 	}
 }
 
-func initializeGitRepository(rootDir string) error {
+func InitializeGitRepository(rootDir string) error {
 	_, err := git.PlainInit(rootDir, false)
 	if err != nil {
 		return fmt.Errorf("failed to initialize git repository: %v", err)
@@ -133,7 +133,7 @@ func initializeGitRepository(rootDir string) error {
 	return nil
 }
 
-func addAllFiles(rootDir string) error {
+func AddAllFiles(rootDir string) error {
 	repo, err := git.PlainOpen(rootDir)
 	if err != nil {
 		return fmt.Errorf("failed to open repository: %v", err)
@@ -196,7 +196,7 @@ func countFiles(rootDir string) (int, error) {
 	return fileCount, err
 }
 
-func configureGitUserInfo() (AuthorInfo, error) {
+func ConfigureGitUserInfo() (AuthorInfo, error) {
 	gitConfigPath, err := mymazda.ExpandTilde(opts.GitConfig)
 	if err != nil {
 		panic(err)
